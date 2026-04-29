@@ -1,0 +1,41 @@
+- macro: soc_portal_containers
+  condition: >
+    container and
+    (
+      container.name = real-web-app or
+      container.name = web-honeypot or
+      container.name = nginx-proxy
+    )
+
+- rule: Shell spawned in SOC portal container
+  desc: Detect shell execution inside the customer-facing portal containers.
+  condition: soc_portal_containers and spawned_process and shell_procs
+  output: >
+    SOC portal shell execution detected
+    (container=%container.name user=%user.name proc=%proc.cmdline parent=%proc.pname image=%container.image.repository:%container.image.tag)
+  priority: WARNING
+  tags: [container, portal, process, mitre_execution]
+
+- rule: Sensitive file read from SOC portal container
+  desc: Detect reads of sensitive host-style files from the portal containers.
+  condition: >
+    soc_portal_containers and open_read and
+    (
+      fd.name startswith /etc/passwd or
+      fd.name startswith /etc/shadow or
+      fd.name startswith /root/.ssh
+    )
+  output: >
+    SOC portal sensitive file read
+    (container=%container.name user=%user.name file=%fd.name proc=%proc.cmdline)
+  priority: WARNING
+  tags: [container, portal, filesystem, mitre_credential_access]
+
+- rule: Write below application directory in SOC portal container
+  desc: Detect unexpected writes inside the packaged portal application directory.
+  condition: soc_portal_containers and open_write and fd.name startswith /app
+  output: >
+    SOC portal application write detected
+    (container=%container.name user=%user.name file=%fd.name proc=%proc.cmdline)
+  priority: NOTICE
+  tags: [container, portal, filesystem, integrity]

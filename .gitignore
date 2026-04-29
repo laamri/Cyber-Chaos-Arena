@@ -1,0 +1,33 @@
+# ===== Secrets =====
+.env
+*.env.local
+secrets/
+docker/nginx/certs/*.key
+docker/nginx/certs/*.pem
+docker/nginx/certs/*.crt
+
+# ===== Docker =====
+docker/*/data/
+docker/*/logs/
+
+# ===== IDE =====
+.vscode/
+.idea/
+*.swp
+
+# ===== OS =====
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# ===== Vagrant (legacy) =====
+.vagrant/
+*.box
+
+# ===== Logs =====
+*.log
+logs/
+
+
+README-WINDOWS.md
+resume.md
